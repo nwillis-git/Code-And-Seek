@@ -9,6 +9,9 @@ SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 450
 WINDOW_TITLE = "Code and Seek"
 
+NUM_GUESSES = 4                     # The number of guesses the seeker will have
+MARKER_SIZE = 10                    # The size of the marker circles that appear after a guess
+
 ## Initialize the turtle library window
 turtle.setup(SCREEN_WIDTH, SCREEN_HEIGHT)
 screen = turtle.Screen()
@@ -126,7 +129,7 @@ def guessAndCheck(hiderPos):
     distanceToHider = math.sqrt(math.fabs(hiderPos[0] - guessX) ** 2 + math.fabs(hiderPos[1] - guessY) ** 2)    # Pythagorean theorem
     score = scoreAlgorithm(distanceToHider)
 
-    # Update globals
+    # Update globals using accumulator pattern
     bestGuess = max(score, bestGuess)
     scoreTotal += score
     distanceTotal += distanceToHider
@@ -141,28 +144,28 @@ def scoreAlgorithm(distance):
 def drawGuess(distanceToHider, score, guessX, guessY):
     t.fillcolor('red')
     t.up()
-    t.goto(guessX, guessY - 5)          # Offset from point by radius of circle
+    t.goto(guessX, guessY - MARKER_SIZE * 0.5)          # Offset from point by radius of circle
     t.down()
     t.begin_fill()
-    t.circle(10)
+    t.circle(MARKER_SIZE)
     t.end_fill()
     t.up()
-    t.goto(guessX + 15, guessY + 5)
-    t.write(f"Score: {score:.2f}")      # Round score and distance to 2 decimals for display
-    t.goto(guessX + 15, guessY - 10)
-    t.write(f"Distance: {distanceToHider:.2f}")
+    t.goto(guessX + MARKER_SIZE * 1.5, guessY + 5)
+    t.write(f"Score: {round(score, 2):.2f}")      # Round score and distance to 2 decimals for display
+    t.goto(guessX + MARKER_SIZE * 1.5, guessY - 10)
+    t.write(f"Distance: {round(distanceToHider)}")
 
 # Reveal the hider's location to the seeker
 def revealLocation(x, y):
     t.fillcolor('limegreen')
     t.up()
-    t.goto(x, y - 5)
+    t.goto(x, y - MARKER_SIZE * 0.5)
     t.down()
     t.begin_fill()
-    t.circle(10)
+    t.circle(MARKER_SIZE)
     t.end_fill()
     t.up()
-    t.goto(x, y - 20)
+    t.goto(x, y - MARKER_SIZE * 2)
     t.write(f"Location: {x}, {y}", align='center')
 
 def endScreen():
@@ -173,11 +176,11 @@ def endScreen():
     t.goto(0,75)
     t.write("GAME OVER!", align='center', font=('Arial', '24'))
     t.goto(0,25)
-    t.write(f"Total Score: {scoreTotal:.2f}", align='center', font=('Arial', 12))
+    t.write(f"Total Score: {round(scoreTotal, 2):.2f}", align='center', font=('Arial', 12))
     t.goto(0,-25)
-    t.write(f"Best Guess: {bestGuess:.2f}", align='center', font=('Arial', 12))
+    t.write(f"Best Guess: {round(bestGuess)}", align='center', font=('Arial', 12))
     t.goto(0,-75)
-    t.write(f"Total Distance: {distanceTotal:.2f}", align='center', font=('Arial', 12))
+    t.write(f"Total Distance: {round(distanceTotal)}", align='center', font=('Arial', 12))
 
 
 ## Function calls (Running the game)
@@ -188,7 +191,7 @@ drawScene()     # Draw the decor
 hiderPos = getHiderPos()    # Get the secret location
 screen.tracer(1)            # Let the user see the circles appear
 
-for i in range(4):                                                      # Seeker gets 4 guesses
+for i in range(NUM_GUESSES):                                                      # Seeker gets 4 guesses
     guessInfo = guessAndCheck(hiderPos)                                 # Guess and compare to hider location
     drawGuess(guessInfo[0], guessInfo[1], guessInfo[2], guessInfo[3])   # Show the results to the user
     #time.sleep(3)                                                       # Admire results
